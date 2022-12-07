@@ -70,11 +70,16 @@ class IndexingIT extends BaseIntegrationTest {
 
   @Test
   void shouldRemoveItem() {
+    try {
     createInstances();
     var itemIdToDelete = ITEM_IDS.get(1);
     inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
     assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0);
     assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.get(0), 1);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   @Test
