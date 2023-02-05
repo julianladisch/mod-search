@@ -9,15 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        search: [elasticsearch7, elasticsearch8, opensearch1]
-        include:
-          - search: elasticsearch7
-            searchdir: elasticsearch
-          - search: elasticsearch8
-            searchdir: elasticsearch8
-          - search: opensearch1
-            searchdir: opensearch
-
+        searchdir: [elasticsearch, elasticsearch8, opensearch]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-java@v3
@@ -25,5 +17,5 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
         cache: 'maven'
-    - run: export SEARCH_ENGINE_DOCKERFILE="docker/${{ searchdir }}"; mvn clean install
+    - run: export SEARCH_ENGINE_DOCKERFILE="docker/${{ searchdir }}/Dockerfile"; mvn clean install
 
