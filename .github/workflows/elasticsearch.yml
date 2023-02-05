@@ -17,5 +17,5 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
         cache: 'maven'
-    - run: export SEARCH_ENGINE_DOCKERFILE="docker/${{ searchdir }}/Dockerfile"; mvn clean install
+    - run: export SEARCH_ENGINE_DOCKERFILE="docker/${{ matrix.searchdir }}/Dockerfile"; mvn clean install
 
