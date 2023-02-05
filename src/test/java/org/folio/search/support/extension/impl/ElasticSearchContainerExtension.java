@@ -13,7 +13,7 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
 
   private static final String SPRING_PROPERTY_NAME = "spring.opensearch.uris";
   private static final String IMAGE_NAME = "dev.folio/searchengine";
-  private static final String DEFAULT_DOCKERFILE = "docker/opensearch/Dockerfile";
+  private static final String DEFAULT_DOCKERFILE = "docker/opensearch2/Dockerfile";
   private static final GenericContainer<?> CONTAINER = createContainer();
 
   @Override

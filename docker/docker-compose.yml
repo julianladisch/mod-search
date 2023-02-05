@@ -14,7 +14,8 @@ services:
       - "${DEBUG_PORT}:${DEBUG_PORT}"
     depends_on:
       - api-mock
-      - opensearch
+      - opensearch-node1
+      - opensearch-node2
       - kafka
       - postgres
     environment:
@@ -36,39 +37,70 @@ services:
     volumes:
       - ../src/test/resources/mappings:/home/wiremock/mappings
 
-  opensearch:
-    container_name: opensearch
-    image: dev.folio/opensearch:1.3.2
-    build:
-      context: opensearch
-      dockerfile: Dockerfile
+  opensearch-node1:
+    image: opensearchproject/opensearch:2.5.0  # make sure that the same version is used for node1, node2, dashboards
+    container_name: opensearch-node1
+    environment:
+      - cluster.name=opensearch-cluster # Name the cluster
+      - node.name=opensearch-node1 # Name the node that will run in this container
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2 # Nodes to look for when discovering the cluster
+      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2 # Nodes eligibile to serve as cluster manager
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
+      - "DISABLE_SECURITY_PLUGIN=true" # Disables security plugin
+    ulimits:
+      memlock:
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
+        hard: -1
+      nofile:
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 65536
+    volumes:
+      - opensearch-data1:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
+    ports:
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
     networks:
       - mod-search-local
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
+
+  opensearch-node2:
+    image: opensearchproject/opensearch:2.5.0
+    container_name: opensearch-node2
     environment:
-      - discovery.type=single-node
-      - discovery.zen.minimum_master_nodes=1
-      - "DISABLE_SECURITY_PLUGIN=true"
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.name=opensearch-cluster # Name the cluster
+      - node.name=opensearch-node2 # Name the node that will run in this container
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2 # Nodes to look for when discovering the cluster
+      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2 # Nodes eligibile to serve as cluster manager
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
+      - "DISABLE_SECURITY_PLUGIN=true" # Disables security plugin
+    ulimits:
+      memlock:
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
+        hard: -1
+      nofile:
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 65536
+    volumes:
+      - opensearch-data2:/usr/share/opensearch/data # Creates volume called opensearch-data2 and mounts it to the container
+    networks:
+      - mod-search-local
 
   opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.5.0 # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
     container_name: opensearch-dashboards
-    image: dev.folio/opensearch-dashboards:1.3.2
-    build:
-      context: dashboards
-      dockerfile: Dockerfile
     ports:
-      - "5601:5601"
+      - 5601:5601 # Map host port 5601 to container port 5601
+    expose:
+      - "5601" # Expose port 5601 for web access to OpenSearch Dashboards
     environment:
-      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      OPENSEARCH_HOSTS: '["http://opensearch-node1:9200","http://opensearch-node2:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
     networks:
       - mod-search-local
-    depends_on:
-      - opensearch
 
   zookeeper:
     container_name: zookeeper
@@ -131,5 +163,6 @@ networks:
     driver: bridge
 
 volumes:
-  es-data: { }
+  opensearch-data1: { }
+  opensearch-data2: { }
   db-data: { }

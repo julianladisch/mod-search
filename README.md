@@ -75,19 +75,22 @@ mvn install
 ```
 See that it says "BUILD SUCCESS" near the end.
 
-By default the integration tests run against an OpenSearch server.
-To run them against an Elasticsearch server use
+By default the integration tests run against an OpenSearch 2 server.
+To run them against an OpenSearch 1, Elasticsearch 7 or Elasticsearch 8 server use
+
+```shell
+SEARCH_ENGINE_DOCKERFILE="docker/opensearch/Dockerfile" mvn install
+```
 
 ```shell
 SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch/Dockerfile" mvn install
 ```
-for Elasticsearch 7 or
 
 ```shell
 SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch8/Dockerfile" mvn install
 ```
 
-for Elasticsearch 8 or run [GitHub Action elasticsearch.yml](.github/workflows/elasticsearch.yml).
+or run [GitHub Action elasticsearch.yml](.github/workflows/elasticsearch.yml).
 
 ## Running it
 
