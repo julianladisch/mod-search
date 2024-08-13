@@ -1,8 +1,6 @@
 name: Maven Build
-
 on:
   workflow_dispatch:
-    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,4 +13,4 @@ jobs:
         cache: maven
     - run: git clone -b FOLSPRINGS-161-spring-boot-3.4 --depth 1 https://github.com/folio-org/folio-spring-support.git
     - run: cd folio-spring-support; mvn -B -U -DskipTests install
-    - run: mvn -B package
+    - run: mvn -B install
