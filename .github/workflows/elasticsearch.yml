@@ -1,4 +1,4 @@
-name: elasticsearch
+name: elasticsearch9
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 jobs:
-  elasticsearch8:
+  elasticsearch9:
     runs-on: ubuntu-latest
     env:
       ELASTICSEARCH_SERVER: true
@@ -17,7 +17,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-      - run: export SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch8/Dockerfile"; mvn clean install
+      - run: export SEARCH_ENGINE_DOCKERFILE="docker/elasticsearch9/Dockerfile"; mvn clean install
   opensearch2:
     runs-on: ubuntu-latest
     steps:
